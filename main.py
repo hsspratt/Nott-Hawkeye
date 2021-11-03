@@ -23,7 +23,7 @@ plt.imshow(img1)
 keep = np.double(img1>130)
 # img1()
 
-plt.imshow(keep)
+plt.imshow(keep); plt.axis('off')
 
 
 # %%
