@@ -1,0 +1,25 @@
+\documentclass[11pt]{article}
+\title{Nott Hawkeye – tracking a cricket ball in motion}
+\date{}
+
+\begin{document}
+\maketitle
+
+Hawkeye is now commonplace in sport, being used in cricket, tennis and rugby union. The basic premise is that a number of cameras are placed around a sportsground, synchronised, and used to track, in real time, the location of a ball in 3D space. Initially used (in cricket) purely for the benefit of TV viewers, it is now used to make decisions that are critical to the game itself (e.g. whether or not a batsman should be given
+out leg-before-wicket).
+In this project, students will use a simple two camera system in order to try to recreate what hawkeye does. This will first involve simple
+image processing tools to segment and track a ball. Following this multiple cameras will be used to turn these ball tracking algorithms into quantitative 3D information on ball position.
+
+\
+
+\textbf{Project outline:}
+
+\
+
+\begin{itemize}
+	\item Obtain streamed data, from a single camera, of a moving ball and develop an object tracking algorithm to automatically segment the image and find the centre of mass of the ball (we suggest doing this initially using a black ball against a white background – the thresholding, segmentation and edge detection routines that you have previously learnt about will help).
+	\item Expand the problem to two dimensions – adding a second camera. We suggest that you first limit movement of the ball to two dimensions by, allowing the ball to roll across a table top. By knowing the locations of the cameras relative to each other, you should be able to compute the location of the ball in 2D. (Note the hard part here is synchronising the cameras in time, so you might want to start with simple stationary images)
+	\item Advanced option: if you have time you can add the third dimension of height. If you can devise a way of synchronising the cameras, you should then be able to recreate the system used in cricket.
+
+\end{itemize}
+\end{document}
