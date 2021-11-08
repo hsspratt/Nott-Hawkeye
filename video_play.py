@@ -7,8 +7,10 @@ import cv2 as cv
 # import skimage.color as skm
 import pickle
 
+# choose file to read
+f_name = 'video1.pckl'
 
-f = open('video.pckl', 'rb')
+f = open(f_name, 'rb')
 video = pickle.load(f)
 f.close()
 
@@ -34,23 +36,26 @@ print(f'completed plot in {toc2-tic2: .1f}s')
 # %%
 tic3 = timer()
 
-for i in range(0,100):
+for i in range(0,nframes-1):
     cv.imshow('video', video[:,:,i])
-    cv.waitKey(100)
+    cv.waitKey(10)
 
     print(" ", end=f"\r frame: {i+1} ", flush=True)
 
 toc3 = timer()
 
-print(f'plotted in {toc3-tic3: 0.1f}s')
+print(f'plotted in {toc3-tic3: 0.1f}s, press any key to close window and continue')
 
-cv.namedWindow('last video frame')
-cv.moveWindow('last video frame', 200,100) 
-cv.imshow('last video frame', video[:,:,i])
+# check that last frame was plotted
+# cv.namedWindow('last video frame')
+# cv.moveWindow('last video frame', 200,100) 
+# cv.imshow('last video frame', video[:,:,i])
 
 cv.waitKey(0)
 cv.destroyAllWindows()
 cv.waitKey(1)
+
+print('windows closed')
 
 
 # %%

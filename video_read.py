@@ -1,4 +1,6 @@
 #%% load modules
+from timeit import default_timer as timer
+tic1 = timer()
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
@@ -49,15 +51,18 @@ while (cap.isOpened()):
 
 cap.release()
 
+# %%
+
 plt.figure()
 plot1 = plt.imshow(video[:,:,nframes-100], cmap='gray')
+plot1.axis = 'off'
 
-plt.pause(0)
-
-f = open(f_name, 'wb')
+f = open(f_name, 'xb')
 pickle.dump(video, f)
 f.close()
 
-print('\n complete')
+toc1 = timer()
+
+print(f'\n complete in {toc1-tic1: 0.1f}s')
 
 # %%
