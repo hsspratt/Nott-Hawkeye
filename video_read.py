@@ -76,18 +76,4 @@ toc1 = timer()
 print(f'\n complete in {toc1-tic1: 0.1f}s')
 
 # %%
-import blosc
-tic1 = timer()
-# with blosc.open("lmza_test1.xz", "wb") as f:
-#     pickle.dump(video, f)
-
-pickled_data = pickle.dumps(video)  # returns data as a bytes object
-compressed_pickle = blosc.compress(pickled_data)
-
-with open("video1.dat", "wb") as f:
-    f.write(compressed_pickle)
-toc1 = timer()
-print(f'\n complete in {toc1-tic1: 0.1f}s')
-
-# %%
 

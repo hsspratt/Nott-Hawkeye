@@ -42,7 +42,6 @@ print(f'\n complete in {toc1-tic1: 0.1f}s')
 
 # %% blosc
 
-import blosc
 tic1 = timer()
 
 pickled_data = pickle.dumps(video)  # returns data as a bytes object

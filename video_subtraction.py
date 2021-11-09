@@ -6,8 +6,8 @@ tic1 = timer()
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
-# import skimage.color as skm
 import pickle
+import bz2
 
 f_name = 'video1.pckl'
 
@@ -68,7 +68,6 @@ plt.imshow(diff_thresh[:,:,300], cmap='gray'); plt.axis('off')
 
 # %% ~28s
 tic = timer()
-import bz2
 
 with bz2.BZ2File('diff_thresh.pbz2', 'xb') as f:
     pickle.dump(diff_thresh, f)
