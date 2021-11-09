@@ -1,4 +1,4 @@
-#%% load modules
+#%% load modules ~10s
 from timeit import default_timer as timer
 tic1 = timer()
 import numpy as np
@@ -6,17 +6,18 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 import skimage.color as skm
 import pickle
+import bz2
 
-# %%
-# record video into array
+# %% record video into array 
 
-# specify file to read from 
-# f_cap = 'cars 10s 1.mp4'
+# specify file to read from:
+    # f_cap = 'cars 10s 1.mp4'
 f_cap = 'IMG_0599.mp4'
 
-#specify filename
-f_name = 'video1.pckl'
+# specify filename to save to 
+f_name = 'video1.pbz2'
 
+# capture video into array
 cap = cv.VideoCapture(f_cap)
 fps = int(cap.get(5))
 nframes = int(cap.get(7))
@@ -39,7 +40,7 @@ while (cap.isOpened()):
     # capture frame by frame
     ret, frame = cap.read()
     if ret == True:
-
+        # save grayscale image
         video[:,:,n] = skm.rgb2gray(frame)
 
         n+=1
@@ -51,18 +52,42 @@ while (cap.isOpened()):
 
 cap.release()
 
-# %%
-
 plt.figure()
-plot1 = plt.imshow(video[:,:,nframes-100], cmap='gray')
+plot1 = plt.imshow(video[:,:,nframes-50], cmap='gray')
 plot1.axis = 'off'
 
-f = open(f_name, 'xb')
-pickle.dump(video, f)
-f.close()
+# %% 
+tic1 = timer()
+
+# save video array to compressed file 
+with bz2.BZ2File(f_name, 'wb') as f:
+    pickle.dump(video, f)
 
 toc1 = timer()
 
 print(f'\n complete in {toc1-tic1: 0.1f}s')
 
 # %%
+import lzma
+tic1 = timer()
+with lzma.open("lmza_test1.xz", "wb") as f:
+    pickle.dump(video, f)
+toc1 = timer()
+print(f'\n complete in {toc1-tic1: 0.1f}s')
+
+# %%
+import blosc
+tic1 = timer()
+# with blosc.open("lmza_test1.xz", "wb") as f:
+#     pickle.dump(video, f)
+
+pickled_data = pickle.dumps(video)  # returns data as a bytes object
+compressed_pickle = blosc.compress(pickled_data)
+
+with open("video1.dat", "wb") as f:
+    f.write(compressed_pickle)
+toc1 = timer()
+print(f'\n complete in {toc1-tic1: 0.1f}s')
+
+# %%
+

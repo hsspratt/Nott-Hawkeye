@@ -1,5 +1,7 @@
 #%% load modules
 from timeit import default_timer as timer
+
+from numpy.lib.function_base import corrcoef
 tic1 = timer()
 import numpy as np
 import matplotlib.pyplot as plt
@@ -45,11 +47,11 @@ cv.waitKey(1)
 # %%
 tic3 = timer()
 #  normalise and threshold
-diff1 = diff/np.max(diff)
-diff1 = np.double(diff1>0.6)
+diff_thresh = diff/np.max(diff)
+diff_thresh = np.double(diff_thresh>0.6)
 
 for i in range(0, nframes-1):
-    cv.imshow('video1', diff1[:,:,i])
+    cv.imshow('video1', diff_thresh[:,:,i])
     cv.waitKey(10)
 
     print(" ", end=f"\r frame: {i+1} ", flush=True)
@@ -59,11 +61,18 @@ print(f'completed in {toc3-tic3: .1f}s')
 
 cv.waitKey(0)
 cv.destroyAllWindows()
-cv.waitKey(1)
-
-# %%
+cv.waitKey(10)
 
 plt.figure()
-plt.imshow(diff1[:,:,300], cmap='gray'); plt.axis('off')
+plt.imshow(diff_thresh[:,:,300], cmap='gray'); plt.axis('off')
 
+# %% ~28s
+tic = timer()
+import bz2
+
+with bz2.BZ2File('diff_thresh.pbz2', 'xb') as f:
+    pickle.dump(diff_thresh, f)
+
+toc = timer()
+print(f'completed in {toc-tic: .1f}s')
 # %%

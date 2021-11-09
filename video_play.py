@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 # import skimage.color as skm
 import pickle
+import lzma
 
 # choose file to read
 f_name = 'video1.pckl'
 
-f = open(f_name, 'rb')
-video = pickle.load(f)
-f.close()
+with lzma.open(f_name, 'rb') as f:
+    video = pickle.load(f)
 
 nframes = np.shape(video)[2]
 
