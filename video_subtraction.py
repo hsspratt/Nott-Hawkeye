@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 import pickle
 import bz2
+import lzma
 
-f_name = 'video1.pckl'
+f_name = "lmza_test1.xz"
 
-f = open(f_name, 'rb')
-video = pickle.load(f)
-f.close()
+with lzma.open(f_name, 'rb') as f:
+    video = pickle.load(f)
 
 nframes = np.shape(video)[2]
 
@@ -29,7 +29,7 @@ print(f'number of frames: {nframes}')
 video_size = np.shape(video)
 diff = np.zeros(video_size)
 
-for i in range(0, nframes-1):
+for i in range(0, nframes):
     #  take difference image
     diff[:,:,i] = np.abs(video[:,:,i]-video[:,:,0])
     cv.imshow('video', diff[:,:,i])
@@ -50,7 +50,7 @@ tic3 = timer()
 diff_thresh = diff/np.max(diff)
 diff_thresh = np.double(diff_thresh>0.6)
 
-for i in range(0, nframes-1):
+for i in range(0, nframes):
     cv.imshow('video1', diff_thresh[:,:,i])
     cv.waitKey(10)
 
