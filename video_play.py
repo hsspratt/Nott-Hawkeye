@@ -41,11 +41,6 @@ toc3 = timer()
 
 print(f'plotted in {toc3-tic3: 0.1f}s, press any key to close window and continue')
 
-# check that last frame was plotted
-# cv.namedWindow('last video frame')
-# cv.moveWindow('last video frame', 200,100) 
-# cv.imshow('last video frame', video[:,:,i])
-
 cv.waitKey(0)
 cv.destroyAllWindows()
 cv.waitKey(1)

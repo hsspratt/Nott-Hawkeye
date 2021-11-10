@@ -15,18 +15,39 @@ with bz2.BZ2File(f_name, 'rb') as f:
 
 toc1 = timer()
 print(f'completed import in {toc1-tic1: .1f}s')
-# %%
+# %%  ~48s for closing ~29s for binary_closing (100 frames) ~1m for all frames
+
 str_el = morph.disk(8)
 array_shape = np.shape(diff_thresh)
+nframes = array_shape[2]
+closed = np.zeros(array_shape, dtype=np.int8)
 
-# for i in range 
-im = diff_thresh[:,:,300]
-opened = morph.closing(im, str_el)
+tic2 = timer()
+for i in range(0, nframes):
+    im = np.int8(diff_thresh[:,:,i])
+    closed[:,:,i] = morph.binary_closing(im, str_el).astype(np.int8)
 
-plt.figure()
-plt.imshow(im, cmap='gray') 
+    print(" ", end=f"\r frame: {i+1} ", flush=True)
 
-plt.figure()
-plt.imshow(opened, cmap='gray') 
+toc2 = timer()
+print(f'closed masks in {toc2-tic2: .1f}s')
 
 # %%
+
+i = 240
+plt.figure()
+plt.imshow(np.uint8(diff_thresh[:,:,i]), cmap='gray') 
+
+plt.figure()
+plt.imshow(closed[:,:,i], cmap='gray') 
+
+# %%
+
+f_name_export = "closed.pbz2"
+
+with bz2.BZ2File(f_name_export, 'wb') as f:
+    pickle.dump(closed, f)
+
+
+# %%
+
