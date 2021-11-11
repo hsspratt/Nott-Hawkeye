@@ -6,5 +6,9 @@
         "ylabel",
         "ylim",
         "zlabel"
+        "cmap",
+        "hstack",
+        "imshow",
+        "nframes"
     ]
 }
