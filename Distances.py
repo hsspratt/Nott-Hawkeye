@@ -48,7 +48,7 @@ def LocShortestDistance(r1, r2, v1, v2):
 
     dist = np.linalg.norm(c1-c2,axis=0)
 
-    return c1, c2, dist
+    return [c1, c2, dist]
 
 def Polar2Cart(r0, angle, axis, camera):
     if camera == "1":
@@ -179,6 +179,9 @@ ax.elev = 90
 
 ax.plot3D(xs=camera_1_t_vector[0]+camera_1_r0[0],ys=camera_1_t_vector[2]+camera_1_r0[2],zs=camera_1_t_vector[1]+camera_1_r0[1])
 ax.plot3D(xs=camera_2_t_vector[0]+camera_2_r0[0],ys=camera_2_t_vector[2]+camera_2_r0[2],zs=camera_2_t_vector[1]+camera_2_r0[1])
+
+d = FindShortestDistance(camera_1_r0, camera_2_r0, camera_1_vector, camera_2_vector)
+position_short_dist = LocShortestDistance(camera_1_r0, camera_2_r0, camera_1_vector, camera_2_vector)
 
 plt.show()
 # %%
