@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
 import sys
-import FindBall as FindBall
+#import FindBall as FindBall
 
 # path to Physic Pics folder
 
@@ -22,27 +22,29 @@ A3_P1 = cv.imread(f_A3_P1) # cv.THRESH_BINARY
 gray_A3_Backround = cv.cvtColor(A3_Backround,cv.COLOR_BGR2GRAY)
 gray_A3_P1 = cv.cvtColor(A3_P1,cv.COLOR_BGR2GRAY)
 
+RGB_P1 = cv.cvtColor(A3_P1,cv.COLOR_BGR2RGB)
+plt.imshow(RGB_P1)
 img2 = cv.imread(f_image2,0)
 
-image1 = plt.imread(f_image1, 'gray')
-image2 = plt.imread(f_image2)
+#image1 = plt.imread(f_image1, 'gray')
+#image2 = plt.imread(f_image2, 'gray')
 
-plt.figure('1')
-plt.imshow(image1); plt.axis("off")
+#plt.figure('1')
+#plt.imshow(image1); plt.axis("off")
 
-plt.figure('2')
-plt.imshow(image2); plt.axis("off")
+#plt.figure('2')
+#plt.imshow(image2); plt.axis("off")
 
 img1 = cv.imread(f_image1,0)
 img2 = cv.imread(f_image2,0)
 
-cv.imshow(f_image1,img1)
-cv.imshow(f_image2,img2)
+plt.figure('img1')
+plt.imshow(img1,cmap='gray')
 
-plt.imshow(img1)
+plt.figure('img2')
+plt.imshow(img2,cmap='gray')
 
-cv.waitKey(10)
-cv.destroyAllWindows()
+#plt.imshow(img1)
 
 # double1 = np.double(image1)
 
@@ -82,17 +84,21 @@ sharp_backround = (255*sharp_backround).clip(0,255).astype(np.uint8)
 sharp_p1 = filters.unsharp_mask(division_p1, radius=1.5, amount=1.5, multichannel=False, preserve_range=False)
 sharp_p1 = (255*sharp_p1).clip(0,255).astype(np.uint8)
 
-thresh = cv.threshold(sharp_backround, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)[1] #cv.THRESH_BINARY + cv.THRESH_OTSU
-thresh1 = cv.threshold(sharp_p1, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)[1] #cv.THRESH_BINARY + cv.THRESH_OTSU
+thresh = cv.threshold(sharp_backround, 0, 255, cv.THRESH_BINARY)[1] #cv.THRESH_BINARY + cv.THRESH_OTSU
+thresh1 = cv.threshold(sharp_p1, 0, 255, cv.THRESH_BINARY)[1] #cv.THRESH_BINARY + cv.THRESH_OTSU
 
+plt.figure('thresh1')
 plt.imshow(abs(thresh1),cmap='gray')
+
+plt.figure('thresh')
 plt.imshow(abs(thresh),cmap='gray')
 
-
+plt.figure('thresh subtraction')
 plt.imshow(abs(thresh-thresh1),cmap='gray')
 plt.savefig('img_subtraction_A3.png', dpi = 1000)
 
-plt.imshow(A3_P1-A3_Backround,cmap='gray')
+plt.figure('image subtraction')
+plt.imshow(gray_A3_P1-gray_A3_Backround, cmap='gray')
 
 
 # %%
