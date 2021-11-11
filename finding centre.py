@@ -111,5 +111,5 @@ print('window closed')
 # %%
 import functions
 
-functions.play_video(diff_thresh)
+functions.video_play(diff_thresh)
 # %%
