@@ -1,0 +1,143 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%2345678901234567890123456789012345678901234567890123456789012345678901234567890
+%        1         2         3         4         5         6         7         8
+
+\documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out
+                                                          % if you need a4paper
+%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4
+                                                          % paper
+
+\IEEEoverridecommandlockouts                              % This command is only
+                                                          % needed if you want to
+                                                          % use the \thanks command
+\overrideIEEEmargins
+% See the \addtolength command later in the file to balance the column lengths
+% on the last page of the document
+
+
+
+% The following packages can be found on http:\\www.ctan.org
+\usepackage{graphics} % for pdf, bitmapped graphics files
+\usepackage{epsfig} % for postscript graphics files
+%\usepackage{mathptmx} % assumes new font selection scheme installed
+%\usepackage{times} % assumes new font selection scheme installed
+\usepackage{amsmath} % assumes amsmath package installed
+\usepackage{amssymb}  % assumes amsmath package installed
+
+\usepackage{url}
+\usepackage[ruled, vlined, linesnumbered]{algorithm2e}
+%\usepackage{algorithm}
+\usepackage{verbatim} 
+%\usepackage[noend]{algpseudocode}
+\usepackage{soul, color}
+\usepackage{lmodern}
+\usepackage{fancyhdr}
+\usepackage[utf8]{inputenc}
+\usepackage{fourier} 
+\usepackage{array}
+\usepackage{makecell}
+
+\SetNlSty{large}{}{:}
+
+\renewcommand\theadalign{bc}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadgape{\Gape[4pt]}
+\renewcommand\cellgape{\Gape[4pt]}
+
+\newcommand{\rework}[1]{\todo[color=yellow,inline]{#1}}
+
+\makeatletter
+\newcommand{\rom}[1]{\romannumeral #1}
+\newcommand{\Rom}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
+
+\pagestyle{plain} 
+
+\title{\LARGE \bf Nott-Hawkeye \\ A rudimentary motion tracking software}
+
+\author{Harry Spratt \& Joe Stables% <-this % stops a space 
+\\  School of Physics and Astronomy \\
+University of Nottingham \\
+}
+
+
+\begin{document}
+
+
+
+\maketitle
+\thispagestyle{plain}
+\pagestyle{plain}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+
+\emph{
+In this project we aimed to create motion tracking software which was coded in python to rival that of Hawkeye. This meant attempting to track a ball in 3D space using only two cameras. To accomplish this we had to use a variety of techniques which included image segmentation, camera calibration and mapping the ball from 2D to 3D using vectors. All of these having individual nuanced challenges we had to overcome to have an operational script. These processes were conducted on each frame individually in the video. After which we were able to produce good results for the project given the complexity and time contraints\\
+}
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{INTRODUCTION}
+
+\input{Introduction.tex}
+
+\section{Related Work}
+
+\input{RelatedWork.tex}
+
+\section{Implementation \& Theory}
+
+\input{Implementation.tex}
+
+\section{Results}
+
+\input{Results.tex}
+
+\section{Discussion}
+
+\input{Discussion.tex}
+
+\section{Conclusion}
+
+\input{Conclusion.tex}
+
+\addtolength{\textheight}{-12cm}   % This command serves to balance the column lengths
+                                  % on the last page of the document manually. It shortens
+                                  % the textheight of the last page by a suitable amount.
+                                  % This command does not take effect until the next page
+                                  % so it should come on the page before the last. Make
+                                  % sure that you do not shorten the textheight too much.
+
+
+\begin{thebibliography}{99}
+
+\bibitem{c1} En.wikipedia.org. (2018). N-body problem. [online]. Available: \url{https://en.wikipedia.org/wiki/N-body_problem}. [Accessed 7 Jan. 2018].
+
+\bibitem{c2} Carugati, N. J. (2016). The Parallelization and Optimization of the N-Body Problem using OpenMP and OpenMPI.
+
+\bibitem{c3} 15418.courses.cs.cmu.edu. (2018). The Barnes-Hut Algorithm : 15-418 Spring 2013. [Online]. Available: \url{http://15418.courses.cs.cmu.edu/spring2013/article/18}. [Accessed: 07- Jan- 2018].
+
+\bibitem{c4} Cs.princeton.edu. (2018). COS 126 Programming Assignment: N-Body Simulation.  [Online]. Available: \url{http://www.cs.princeton.edu/courses/archive/fall04/cos126/assignments/nbody.html}. [Accessed: 07- Jan- 2018].
+
+\bibitem{c5} Damgov, V., Gotchev, D., Spedicato, E., \& Del Popolo, A. (2002). N-body gravitational interactions: a general view and some heuristic problems. arXiv preprint astro-ph/0208373.
+
+\bibitem{c6} Beltoforion.de. (2018). The Barnes-Hut Galaxy Simulator. [Online]. Available: \url{http://beltoforion.de/article.php?a=barnes-hut-galaxy-simulator}. [Accessed: 07- Jan- 2018].
+
+\bibitem{c7} Wwwmpa.mpa-garching.mpg.de. (2018). Cosmological simulations with GADGET. [Online]. Available: \url{http://wwwmpa.mpa-garching.mpg.de/gadget/}. [Accessed: 07- Jan- 2018].
+
+\bibitem{c8} Barnes, J., \& Hut, P. (1986). A hierarchical O (N log N) force-calculation algorithm. nature, 324(6096), 446.
+
+\bibitem{c9} Burtscher, M., \& Pingali, K. (2011). An efficient CUDA implementation of the tree-based barnes hut n-body algorithm. GPU computing Gems Emerald edition, 75.
+
+\bibitem{c10} C.  Swinehart. Arborjs.org. (2018). The Barnes-Hut Algorithm.  [Online]. Available: \url{http://arborjs.org/docs/barnes-hut.} [Accessed: 07- Jan- 2018].
+
+\bibitem{c11} Computing.llnl.gov. (2018). OpenMP. [Online]. Available: \url{https://computing.llnl.gov/tutorials/openMP/}. [Accessed: 07- Jan- 2018].
+
+\bibitem{c12} Docs.nvidia.com. (2018). Programming Guide :: CUDA Toolkit Documentation. [Online]. Available: \url{http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#cuda-general-purpose-parallel-computing-architecture}. [Accessed: 07- Jan- 2018].
+
+\end{thebibliography}
+
+\end{document}
