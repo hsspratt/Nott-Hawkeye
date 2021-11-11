@@ -1,5 +1,11 @@
 {
     "cSpell.words": [
+        "mpmath",
+        "xlabel",
+        "xlim",
+        "ylabel",
+        "ylim",
+        "zlabel"
         "cmap",
         "hstack",
         "imshow",
