@@ -8,6 +8,7 @@ import bz2
 import cv2 as cv
 import sys
 import lzma
+import functions
 
 def decomp(filename, type):
     """Loads a compressed file from /Store
@@ -64,7 +65,7 @@ print(f'completed in {toc2-tic2: .1f}s')
 
 # %%
 
-i = 220
+i = 280
 plt.figure()
 plt.imshow(diff_thresh[:,:,i], cmap='gray'); plt.axis('off')
 plt.scatter(x_av[i],y_av[i], color='r', s=10)
@@ -109,7 +110,8 @@ cv.waitKey(1)
 print('window closed')
 
 # %%
-import functions
 
-functions.play_video(diff_thresh)
+functions.video_play(diff_thresh)
+
+
 # %%

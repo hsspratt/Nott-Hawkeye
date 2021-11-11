@@ -1,21 +1,27 @@
 # %% functions 
 from timeit import default_timer as timer
-tic1 = timer()
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
 import skimage.color as skm
 import pickle
 import lzma
+import bz2
 from PIL import Image, ImageFilter
-import compression 
+# import compression 
 import sys
+import os.path
+import mpmath as mp
 
-def play_video(video):
 
+# video and image handling
+
+def video_play(video):
+
+    print('Playing video in separate window')
     tic3 = timer()
     nframes = np.shape(video)[2]
-    for i in range(0,nframes-1):
+    for i in range(0,nframes):
         cv.imshow('video', video[:,:,i])
         cv.waitKey(10)
 
@@ -33,36 +39,33 @@ def play_video(video):
 
     return
 
-def open_img(f_name):
-    """Opens an image file from physics pics folder
+def open_img(filename):
+    """Opens an image file from Physics Pics folder. \n
+    Physics Pics must be in the active folder with the python file.
 
     Parameters
     ----------
-    f_name : string
-        Name of the file
+    filename : string
+        Name of the file in /Physics Pics, include the file extension i.e. '.jpg'.
 
     Returns
     -------
     np.array
-        numpy array of the picture
+        NumPy array of the picture.
     """    
-    path = sys.path[0] + '/Physics Pics/' + f_name
-    img = np.array(Image.open(path))
-    return img
-
-
-# specify file to read from:
-f_cap = 'IMG_0599.mp4'
-
-# specify filename to save to 
-f_name = 'video1'
-
-def video_read(filename):
     
+    path = sys.path[0] + '/Physics Pics/' + filename
+    image = np.array(Image.open(path))
+    return image
+
+def video_read(filename_full):
+    tic1 = timer()
+    print('Loading video to variable...')
+    path = sys.path[0] + '/Physics Pics/' + filename_full
     # capture video into array
-    cap = cv.VideoCapture(f_cap)
+    cap = cv.VideoCapture(path)
     fps = int(cap.get(5))
-    nframes = int(cap.get(7))
+    nframes = int(cap.get(7))-1
     print(f'number of frames: {nframes}')
 
     if (cap.isOpened() == False):
@@ -92,8 +95,176 @@ def video_read(filename):
     plt.figure()
     plot1 = plt.imshow(video[:,:,nframes-50], cmap='gray')
     plt.axis('off')
+    plt.title(f'Video frame: {nframes-50}')
+    plt.show()
 
     toc1 = timer()
     print(f'\n video read complete in {toc1-tic1: 0.1f}s')
 
     return video
+
+
+# compression imports and exports
+def import_bz2(filename):    
+    path = sys.path[0] + '/Store/' + filename + '.pbz2'
+    if os.path.isfile(path):
+        print(f'Importing {path}...')
+        tic2 = timer()
+        with bz2.BZ2File(path, 'rb') as f:
+            file = pickle.load(f)
+        toc2 = timer()
+        print(f'\n import complete in {toc2-tic2: 0.1f}s')
+    else:
+        print('This file does not exist, check that filename has no extension or try a different filename.')
+
+    return file
+
+
+
+def export_lzma(filename, data):
+    """Exports data, like NumPy arrays, to lzma compressed files in ~/Store. Does not overwrite existing files. 
+    Python file must be in folder containing /Store folder.
+
+    Parameters
+    ----------
+    filename : string
+        Name of the file created. filename does not need .xz extension as this will be added automatically.
+    data : any
+        Specify the variable you wish to write to a compressed file.
+    """    
+    path = sys.path[0] + '/Store/' + filename + '.xz'
+    if os.path.isfile(path):
+        print('This file already exists, choose a new filename or delete existing file.')
+    else:
+        print(f'Exporting to {path}...')
+        tic2 = timer()
+        with lzma.open(path, "xb") as f:
+            pickle.dump(data, f)
+        toc2 = timer()
+        print(f'\n export complete in {toc2-tic2: 0.1f}s')
+
+def export_bz2(filename, data):
+    """Exports data, like NumPy arrays, to bz2 compressed files in ~/Store. Does not overwrite existing files. 
+    Python file must be in folder containing /Store folder.
+
+    Parameters
+    ----------
+    filename : string
+        Name of the file created. filename does not need .pbz2 extension as this will be added automatically.
+    data : any
+        Specify the variable you wish to write to a compressed file.
+    """   
+    path = sys.path[0] + '/Store/' + filename + '.pbz2'
+
+    if os.path.isfile(path):
+        print('This file already exists, choose a new filename or delete existing file.')
+    else:
+        print(f'Exporting to {path}...')
+        tic = timer()
+        with bz2.BZ2File(path, 'xb') as f:
+            pickle.dump(data, f)
+        toc = timer()
+        print(f'completed export in {toc-tic: .1f}s')
+
+# calibration functions
+
+def calib_honing(img, x_calib, y_calib):
+    img_size = np.shape(img)
+
+    x_points = (240, x_calib, 240)
+    y_points = (180, 180, y_calib)
+
+    opacity = 0.8
+
+    subplot, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=(10,10))
+    ax1.imshow(img);
+    ax1.scatter(x_points, y_points, s=500, alpha=opacity, marker='x')
+    ax1.axis([img_size[1]/2-40, img_size[1]/2+40, img_size[0]/2+40,img_size[0]/2-40])
+    ax1.set_title('Centre point')
+    ax2.imshow(img);
+    ax2.scatter(x_points, y_points, s=500, alpha=opacity, marker='x')
+    ax2.axis([0,80, 220,140])
+    ax2.set_title('Centre left')
+    ax3.imshow(img);
+    ax3.scatter(x_points, y_points, s=500, alpha=opacity, marker='x')
+    ax3.axis([200,280, 80,0])
+    ax3.set_title('Top centre')
+    subplot.tight_layout()
+    plt.show(block=True)
+
+    xy_calib = (x_calib, y_calib)
+
+    return xy_calib
+
+def calib_count(img, xy_calib):
+    x_calib, y_calib = xy_calib
+
+    img_size = np.shape(img)
+    gray = skm.rgb2gray(img)
+    thresh = gray>0.58
+
+    x_points = (240, x_calib, 240)
+    y_points = (180, 180, y_calib)
+
+    opacity = 1
+
+    fig = plt.figure(figsize=(10,10))
+    # ax = plt.imshow(thresh, cmap='gray', alpha=0.5); 
+    ax = plt.imshow(gray, cmap='gray'); 
+    plt.scatter(x_points, y_points, s=200, alpha=opacity, marker='x', c='red')
+    plt.title('Calibration image')
+    plt.axis([0, img_size[1]/2+40, img_size[0]/2+40, 0])
+    plt.show(block=True)
+
+def calib_calc(xy_calib, z_dist):
+    x_calib, y_calib = xy_calib
+    # x_dist, y_dist, z_dist = dist
+    x_dist, y_dist = (17, 13)
+
+    x_points = (240, x_calib, 240)
+    y_points = (180, 180, y_calib)
+
+    theta_x = (mp.tan(x_dist/z_dist))
+    x_pixels = x_points[0]-x_points[1]
+    angle_pixel_x = float(theta_x/x_pixels)
+
+    theta_y = (mp.tan(y_dist/z_dist))
+    y_pixels = np.abs(y_points[0]-y_points[2])
+    angle_pixel_y = float(theta_y/y_pixels)
+
+    print(f'x-axis: {angle_pixel_x: 0.4f}rad/px' + f'   y-axis: {angle_pixel_y: 0.4f}rad/px')
+    # print(f'For the y-axis: distance is {y_dist}cm; pixel distance is {y_pixels}px' + 
+    #     f' and angle per pixel is {angle_pixel_y:0.4f}rad/px.')
+
+    return angle_pixel_x, angle_pixel_y
+
+def calib(image, z_dist, x_calib, y_calib):
+    xy_calib = calib_honing(image, x_calib, y_calib)
+    angle_pixel_xy = calib_calc(xy_calib, z_dist)
+
+    return angle_pixel_xy
+
+# image manipulation
+
+def gauss_blur(image, radius):
+    """Blurs an image using a gaussian blur filter with specified radius.
+
+    Parameters
+    ----------
+    image : np.array
+        NumPy array of an image in colour. 
+    radius : float
+        Specify the radius of the blur, the greater the radius, the greater the blur.
+
+    Returns
+    -------
+    np.array
+        Returns a NumPy array of the blurred image.
+    """    
+    im = Image.fromarray(np.uint8(image))
+    blur = np.array(im.filter(ImageFilter.GaussianBlur(radius=radius)))
+
+    return blur
+
+
+# %%

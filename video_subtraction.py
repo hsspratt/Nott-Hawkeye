@@ -10,6 +10,7 @@ import pickle
 import bz2
 import lzma
 import sys 
+import functions
 
 f_name = "video1.xz"
 path = sys.path[0] + '/Store/' + f_name
@@ -80,3 +81,6 @@ with bz2.BZ2File(path, 'xb') as f:
 toc = timer()
 print(f'completed in {toc-tic: .1f}s')
 # %%
+import functions
+
+functions.video_play(video)
