@@ -72,8 +72,9 @@ plt.imshow(diff_thresh[:,:,-1], cmap='gray'); plt.axis('off')
 
 # %% ~28s
 tic = timer()
-path = 
-with bz2.BZ2File('diff_thresh.pbz2', 'xb') as f:
+f_name_export = 'diff_thresh1.pbz2'
+path = sys.path[0] + '/Store/' + f_name_export
+with bz2.BZ2File(path, 'xb') as f:
     pickle.dump(diff_thresh, f)
 
 toc = timer()
