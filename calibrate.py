@@ -66,10 +66,6 @@ print(f'For the y-axis: distance is {y_dist}cm; pixel distance is {y_pixels}px' 
     f' and angle per pixel is {angle_pixel_y:0.4f}rad/px.')
 
 
-# %%
-import functions
-
-
 
 # %%
 gray = skm.rgb2gray(img)
@@ -80,25 +76,8 @@ histogram, bin_edges = np.histogram(gray, bins=100, range=(0, 1))
 
 plt.plot(bin_edges[0:-1], histogram)
 
-# %%
-def calib_calc(x_dist, y_dist, z_dist):
-
-    theta_x = (math.tan(x_dist/z_dist))
-    x_pixels = x_points[0]-x_points[1]
-    angle_pixel_x = theta_x/x_pixels
-
-    theta_y = (math.tan(y_dist/z_dist))
-    y_pixels = np.abs(y_points[0]-y_points[2])
-    angle_pixel_y = theta_y/y_pixels
-
-    print(f'x-axis: {angle_pixel_x: 0.4f}rad/px' + f'   y-axis: {angle_pixel_y: 0.4f}rad/px')
-    # print(f'For the y-axis: distance is {y_dist}cm; pixel distance is {y_pixels}px' + 
-    #     f' and angle per pixel is {angle_pixel_y:0.4f}rad/px.')
-
-    return angle_pixel_x, angle_pixel_y
     
-    
-ang_pix_x, ang_pix_y = calib_calc(17, 15, 30.5)
+# ang_pix_x, ang_pix_y = functions.calib_calc(17, 15, 30.5)
 
 
 

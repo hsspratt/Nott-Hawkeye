@@ -6,6 +6,7 @@ import cv2 as cv
 import skimage.color as skm
 import pickle
 import lzma
+import bz2
 from PIL import Image, ImageFilter
 # import compression 
 import sys
@@ -126,6 +127,19 @@ def export_lzma(filename, data):
         toc2 = timer()
         print(f'\n export complete in {toc2-tic2: 0.1f}s')
 
+def export_bz2(filename, data):
+
+    path = sys.path[0] + '/Store/' + filename + '.pbz2'
+
+    if os.path.isfile(path):
+        print('This file already exists, choose a new filename or delete existing file.')
+    else:
+        print(f'Exporting to {path}...')
+        tic = timer()
+        with bz2.BZ2File(path, 'xb') as f:
+            pickle.dump(data, f)
+        toc = timer()
+        print(f'completed export in {toc-tic: .1f}s')
 
 # calibration functions
 
@@ -170,15 +184,17 @@ def calib_count(img, xy_calib):
     opacity = 1
 
     fig = plt.figure(figsize=(10,10))
-    ax = plt.imshow(thresh, cmap='gray', alpha=0.5); 
+    # ax = plt.imshow(thresh, cmap='gray', alpha=0.5); 
+    ax = plt.imshow(gray, cmap='gray'); 
     plt.scatter(x_points, y_points, s=200, alpha=opacity, marker='x', c='red')
     plt.title('Calibration image')
     plt.axis([0, img_size[1]/2+40, img_size[0]/2+40, 0])
     plt.show(block=True)
 
-def calib_calc(xy_calib, dist):
+def calib_calc(xy_calib, z_dist):
     x_calib, y_calib = xy_calib
-    x_dist, y_dist, z_dist = dist
+    # x_dist, y_dist, z_dist = dist
+    x_dist, y_dist = (17, 13)
 
     x_points = (240, x_calib, 240)
     y_points = (180, 180, y_calib)
@@ -196,6 +212,12 @@ def calib_calc(xy_calib, dist):
     #     f' and angle per pixel is {angle_pixel_y:0.4f}rad/px.')
 
     return angle_pixel_x, angle_pixel_y
+
+def calib(image, z_dist, x_calib, y_calib):
+    xy_calib = calib_honing(image, x_calib, y_calib)
+    angle_pixel_xy = calib_calc(xy_calib, z_dist)
+
+    return angle_pixel_xy
 
 # image manipulation
 
