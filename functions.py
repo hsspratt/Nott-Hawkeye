@@ -58,11 +58,12 @@ def open_img(filename):
     image = np.array(Image.open(path))
     return image
 
-def video_read(file_path):
+def video_read(filename_full):
     tic1 = timer()
     print('Loading video to variable...')
+    path = sys.path[0] + '/Physics Pics/' + filename_full
     # capture video into array
-    cap = cv.VideoCapture(file_path)
+    cap = cv.VideoCapture(path)
     fps = int(cap.get(5))
     nframes = int(cap.get(7))-1
     print(f'number of frames: {nframes}')
@@ -104,6 +105,21 @@ def video_read(file_path):
 
 
 # compression imports and exports
+def import_bz2(filename):    
+    path = sys.path[0] + '/Store/' + filename + '.pbz2'
+    if os.path.isfile(path):
+        print(f'Importing {path}...')
+        tic2 = timer()
+        with bz2.BZ2File(path, 'rb') as f:
+            file = pickle.load(f)
+        toc2 = timer()
+        print(f'\n import complete in {toc2-tic2: 0.1f}s')
+    else:
+        print('This file does not exist, check that filename has no extension or try a different filename.')
+
+    return file
+
+
 
 def export_lzma(filename, data):
     """Exports data, like NumPy arrays, to lzma compressed files in ~/Store. Does not overwrite existing files. 
@@ -112,7 +128,7 @@ def export_lzma(filename, data):
     Parameters
     ----------
     filename : string
-        Name the file you wish to create, does not need .xz extension, this will be added automatically.
+        Name of the file created. filename does not need .xz extension as this will be added automatically.
     data : any
         Specify the variable you wish to write to a compressed file.
     """    
@@ -128,7 +144,16 @@ def export_lzma(filename, data):
         print(f'\n export complete in {toc2-tic2: 0.1f}s')
 
 def export_bz2(filename, data):
+    """Exports data, like NumPy arrays, to bz2 compressed files in ~/Store. Does not overwrite existing files. 
+    Python file must be in folder containing /Store folder.
 
+    Parameters
+    ----------
+    filename : string
+        Name of the file created. filename does not need .pbz2 extension as this will be added automatically.
+    data : any
+        Specify the variable you wish to write to a compressed file.
+    """   
     path = sys.path[0] + '/Store/' + filename + '.pbz2'
 
     if os.path.isfile(path):
