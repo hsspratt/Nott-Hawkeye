@@ -6,12 +6,36 @@ import matplotlib.pyplot as plt
 import pickle
 import bz2
 import cv2 as cv
+import sys
+import lzma
+
+def decomp(filename, type):
+    """Loads a compressed file from /Store
+
+    Parameters
+    ----------
+    f_name : string
+        Filename of compressed file in /Store, include file ending
+    type : int
+        0 = bz2 \n
+        1 = lzma
+    """    
+    path = sys.path[0] + '/Store/' + filename
+    if type == 0 or 'bz2':
+        with bz2.BZ2File(path, 'rb') as f:
+            file = pickle.load(f)
+    elif type == 1 or 'lzma': 
+        with lzma.open(path, 'rb') as f:
+            file = pickle.load(f)
+    else:
+        print("ERROR: type must be bz2(0) or lzma(1)")
+    
+    return file
 
 
 f_name_load = "closed.pbz2"
 
-with bz2.BZ2File(f_name_load, 'rb') as f:
-    diff_thresh = pickle.load(f)
+diff_thresh = decomp(f_name_load, 0)
 
 toc1 = timer()
 print(f'completed import in {toc1-tic1: .1f}s')
@@ -35,16 +59,23 @@ for i in range(0, nframes):
     x_av[i] = np.around(np.mean(x))
     y_av[i] = np.around(np.mean(y))
 
+toc2 = timer()
+print(f'completed in {toc2-tic2: .1f}s')
 
 # %%
 
-i = 290
+i = 220
 plt.figure()
 plt.imshow(diff_thresh[:,:,i], cmap='gray'); plt.axis('off')
 plt.scatter(x_av[i],y_av[i], color='r', s=10)
 
-toc2 = timer()
-print(f'completed in {toc2-tic2: .1f}s')
+
+
+# cv.imshow('video', diff_thresh[:,:,i])
+
+# cv.waitKey(0)
+# cv.destroyAllWindows()
+# cv.waitKey(1)
 
 # %%
 
@@ -77,4 +108,8 @@ cv.waitKey(1)
 
 print('window closed')
 
+# %%
+import functions
+
+functions.play_video(diff_thresh)
 # %%

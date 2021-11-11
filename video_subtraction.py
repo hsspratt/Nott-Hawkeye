@@ -9,13 +9,15 @@ import cv2 as cv
 import pickle
 import bz2
 import lzma
+import sys 
 
-f_name = "lmza_test1.xz"
+f_name = "video1.xz"
+path = sys.path[0] + '/Store/' + f_name
 
-with lzma.open(f_name, 'rb') as f:
+with lzma.open(path, 'rb') as f:
     video = pickle.load(f)
 
-nframes = np.shape(video)[2]
+nframes = np.shape(video)[2]-1
 
 toc1 = timer()
 print(f'completed import in {toc1-tic1: .1f}s')
@@ -25,8 +27,8 @@ tic2 = timer()
 
 print(f'number of frames: {nframes}')
 
-# video_size = np.hstack((np.shape(frame)[0:2],nframes))
-video_size = np.shape(video)
+video_size = np.hstack((np.shape(video[:,:,1])[0:2],nframes))
+# video_size = np.shape(video)
 diff = np.zeros(video_size)
 
 for i in range(0, nframes):
@@ -38,7 +40,7 @@ for i in range(0, nframes):
     print(" ", end=f"\r frame: {i+1} ", flush=True)
 
 toc2 = timer()
-print(f'completed difference image in {toc2-tic2: .1f}s')
+print(f'completed difference images in {toc2-tic2: .1f}s')
 
 cv.waitKey(0)
 cv.destroyAllWindows()
@@ -63,12 +65,14 @@ cv.waitKey(0)
 cv.destroyAllWindows()
 cv.waitKey(10)
 
+# %%
+
 plt.figure()
-plt.imshow(diff_thresh[:,:,300], cmap='gray'); plt.axis('off')
+plt.imshow(diff_thresh[:,:,-1], cmap='gray'); plt.axis('off')
 
 # %% ~28s
 tic = timer()
-
+path = 
 with bz2.BZ2File('diff_thresh.pbz2', 'xb') as f:
     pickle.dump(diff_thresh, f)
 
