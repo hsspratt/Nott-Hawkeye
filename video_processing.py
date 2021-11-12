@@ -64,4 +64,19 @@ functions.vis_player(image_save)
 
 # %%
 
-functions.export_bz2('angles_xy_test', )
+angles = functions.import_bz2('angles')
+
+# %%
+
+i = 110
+plt.figure()
+plt.imshow(closed[:,:,i], cmap='gray'); plt.axis('off')
+plt.scatter(centre_xy[0,i],centre_xy[1,i], color='r', s=10)
+
+Aang_x = (centre_xy[0,:]-240)*angles[0,0]
+Aang_y = (centre_xy[1,:]-240)*angles[0,1]
+# %%
+
+functions.export_bz2('A_angles_test', (Aang_x, Aang_y))
+
+# %%
