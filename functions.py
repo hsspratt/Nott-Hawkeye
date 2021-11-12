@@ -8,10 +8,10 @@ import pickle
 import lzma
 import bz2
 from PIL import Image, ImageFilter
-# import compression 
 import sys
 import os.path
 import mpmath as mp
+import skimage.morphology as morph
 
 
 # video and image handling
@@ -244,6 +244,7 @@ def calib(image, z_dist, x_calib, y_calib):
 
     return angle_pixel_xy
 
+
 # image manipulation
 
 def gauss_blur(image, radius):
@@ -266,5 +267,72 @@ def gauss_blur(image, radius):
 
     return blur
 
+def closing_disk(array, radius):
+    str_el = morph.disk(radius)
+    array_shape = np.shape(array)
+    nframes = array_shape[2]
+    closed = np.zeros(array_shape, dtype=np.int8)
+
+    print(f'Total number of frames: {nframes}')
+
+    tic2 = timer()
+    for i in range(0, nframes):
+        im = np.int8(array[:,:,i])
+        closed[:,:,i] = morph.binary_closing(im, str_el).astype(np.uint8)
+
+        print(" ", end=f"\r frame: {i+1} ", flush=True)
+
+    toc2 = timer()
+    print(f'\n closed masks in {toc2-tic2: .1f}s')
+
+    closed = np.ones(array_shape)*closed
+
+    return closed
+
+def difference(video, background):
+    
+    nframes = np.shape(video)[2]
+
+    # create background array for all frames
+    video_0 = np.repeat(background, nframes, 2)
+
+    # create difference image for all frames
+    diff = np.abs(video-video_0)
+
+    return diff
+
+    
+# tracking
+
+def centre_points(array):
+    tic2 = timer()
+
+    array_shape = np.shape(array)
+    nframes = array_shape[2]
+    x_av = np.ndarray.flatten(np.zeros((1,nframes)))
+    y_av = np.ndarray.flatten(np.zeros((1,nframes)))
+
+    for i in range(0, nframes):
+        im = array[:,:,i]
+
+        # only calculates position if an object within the frame
+        if not np.sum(im) == 0:
+            indices = np.where(im==1)
+
+            l,coords = np.unravel_index(indices, np.shape(im))
+            y = coords[0,:]
+            x = coords[1,:]
+
+            x_av[i] = np.around(np.mean(x))
+            y_av[i] = np.around(np.mean(y))
+
+        else:
+            x_av[i] = np.nan
+            y_av[i] = np.nan
+
+    toc2 = timer()
+    print(f'centre_points completed in {toc2-tic2: .1f}s')
+
+    return np.array([x_av, y_av])
 
 # %%
