@@ -1,16 +1,15 @@
 #%%
 from timeit import default_timer as timer
-tic1 = timer()
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
-import pickle
-import bz2
-import lzma
-import sys 
-import skimage.morphology as morph
+# import pickle
+# import bz2
+# import lzma
+# import sys 
+# from PIL import Image
+# import skimage.morphology as morph
 import functions
-from PIL import Image
 import importlib as imp
 imp.reload(functions)
 
@@ -48,7 +47,7 @@ plt.imshow(closed[:,:,105], cmap='gray'); plt.axis('off')
 
 centre_xy = functions.centre_points(closed)
 
-i = 100
+i = 110
 plt.figure()
 plt.imshow(closed[:,:,i], cmap='gray'); plt.axis('off')
 plt.scatter(centre_xy[0,i],centre_xy[1,i], color='r', s=10)
@@ -62,3 +61,7 @@ image_save = functions.visualise(closed, centre_xy)
 
 functions.vis_player(image_save)
 
+
+# %%
+
+functions.export_bz2('angles_xy_test', )
