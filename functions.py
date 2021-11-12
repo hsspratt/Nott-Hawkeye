@@ -106,6 +106,19 @@ def video_read(filename_full):
 
 # compression imports and exports
 def import_bz2(filename):    
+    """Imports data from a bz2 compressed files in ~/Store folder. 
+    The main Python file must be in folder containing the /Store folder.
+
+    Parameters
+    ----------
+    filename : string
+        Name of the file to import. filename does not need .pbz2 extension, as this will be added automatically.
+
+    Returns
+    -------
+    any
+        Returns the decompressed data stored in the file, in its uncompressed format.
+    """    
     path = sys.path[0] + '/Store/' + filename + '.pbz2'
     if os.path.isfile(path):
         print(f'Importing {path}...')
@@ -119,33 +132,36 @@ def import_bz2(filename):
 
     return file
 
-
-
-def export_lzma(filename, data):
-    """Exports data, like NumPy arrays, to lzma compressed files in ~/Store. Does not overwrite existing files. 
-    Python file must be in folder containing /Store folder.
+def import_lzma(filename):
+    """Imports data from a lzma compressed files in ~/Store folder. 
+    The main Python file must be in folder containing the /Store folder.
 
     Parameters
     ----------
     filename : string
-        Name of the file created. filename does not need .xz extension as this will be added automatically.
-    data : any
-        Specify the variable you wish to write to a compressed file.
+        Name of the file to import. filename does not need .xz extension, as this will be added automatically.
+
+    Returns
+    -------
+    any
+        Returns the decompressed data stored in the file, in its uncompressed format.
     """    
     path = sys.path[0] + '/Store/' + filename + '.xz'
     if os.path.isfile(path):
-        print('This file already exists, choose a new filename or delete existing file.')
-    else:
-        print(f'Exporting to {path}...')
+        print(f'Importing {path}...')
         tic2 = timer()
-        with lzma.open(path, "xb") as f:
-            pickle.dump(data, f)
+        with lzma.open(path, 'rb') as f:
+            file = pickle.load(f)
         toc2 = timer()
-        print(f'\n export complete in {toc2-tic2: 0.1f}s')
+        print(f'\n import complete in {toc2-tic2: 0.1f}s')
+    else:
+        print('This file does not exist, check that filename has no extension or try a different filename.')
+
+    return file
 
 def export_bz2(filename, data):
     """Exports data, like NumPy arrays, to bz2 compressed files in ~/Store. Does not overwrite existing files. 
-    Python file must be in folder containing /Store folder.
+    The main Python file must be in folder containing the /Store folder.
 
     Parameters
     ----------
@@ -165,6 +181,28 @@ def export_bz2(filename, data):
             pickle.dump(data, f)
         toc = timer()
         print(f'completed export in {toc-tic: .1f}s')
+
+def export_lzma(filename, data):
+    """Exports data, like NumPy arrays, to lzma compressed files in ~/Store. Does not overwrite existing files. 
+    The main Python file must be in folder containing the /Store folder.
+
+    Parameters
+    ----------
+    filename : string
+        Name of the file created. filename does not need .xz extension as this will be added automatically.
+    data : any
+        Specify the variable you wish to write to a compressed file.
+    """    
+    path = sys.path[0] + '/Store/' + filename + '.xz'
+    if os.path.isfile(path):
+        print('This file already exists, choose a new filename or delete existing file.')
+    else:
+        print(f'Exporting to {path}...')
+        tic2 = timer()
+        with lzma.open(path, "xb") as f:
+            pickle.dump(data, f)
+        toc2 = timer()
+        print(f'\n export complete in {toc2-tic2: 0.1f}s')
 
 # calibration functions
 
