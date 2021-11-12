@@ -40,7 +40,7 @@ def video_play(video):
     return
 
 def open_img(filename):
-    """Opens an image file from Physics Pics folder. \n
+    """Opens an image file from /Physics Pics folder. \n
     Physics Pics must be in the active folder with the python file.
 
     Parameters
@@ -59,6 +59,18 @@ def open_img(filename):
     return image
 
 def video_read(filename_full):
+    """Reads a video from the specified file in ~/Physics Pics. Converts to grayscale to reduce filesize.
+
+    Parameters
+    ----------
+    filename_full : string
+        The file name within /Physics Pics, include the file extension, i.e. '.mp4'.
+
+    Returns
+    -------
+    np.array
+        A 3d array of each grayscale frame, with the frame number along axis 2.
+    """    
     tic1 = timer()
     print('Loading video to variable...')
     path = sys.path[0] + '/Physics Pics/' + filename_full
@@ -70,38 +82,32 @@ def video_read(filename_full):
 
     if (cap.isOpened() == False):
         print('Error opening video')
-
-    ret, frame = cap.read()
-
-    n = 0
-    video_size = np.hstack((np.shape(frame)[0:2],nframes))
-    video = np.zeros(video_size)
-
-    while (cap.isOpened()):
-        # capture frame by frame
+    else:
+        # set up blank video array
         ret, frame = cap.read()
-        if ret == True:
-            # save grayscale image
-            video[:,:,n] = skm.rgb2gray(frame)
+        n = 0
+        video_size = np.hstack((np.shape(frame)[0:2],nframes))
+        video = np.zeros(video_size)
 
-            n+=1
-            print(" ", end=f"\r frame: {n} ", flush=True)
+        while (cap.isOpened()):
+            # capture frame by frame
+            ret, frame = cap.read()
+            if ret == True:
+                # save grayscale image
+                video[:,:,n] = skm.rgb2gray(frame)
 
-        else:
-            break
+                n+=1
+                print(" ", end=f"\r frame: {n} ", flush=True)
 
-    cap.release()
+            else:
+                break
 
-    plt.figure()
-    plot1 = plt.imshow(video[:,:,nframes-50], cmap='gray')
-    plt.axis('off')
-    plt.title(f'Video frame: {nframes-50}')
-    plt.show()
+        cap.release()
 
-    toc1 = timer()
-    print(f'\n video read complete in {toc1-tic1: 0.1f}s')
+        toc1 = timer()
+        print(f'\n video read complete in {toc1-tic1: 0.1f}s')
 
-    return video
+        return video
 
 
 # compression imports and exports
@@ -300,10 +306,13 @@ def gauss_blur(image, radius):
     np.array
         Returns a NumPy array of the blurred image.
     """    
+
     im = Image.fromarray(np.uint8(image))
     blur = np.array(im.filter(ImageFilter.GaussianBlur(radius=radius)))
 
     return blur
+
+
 
 def closing_disk(array, radius):
     str_el = morph.disk(radius)
@@ -419,6 +428,49 @@ def vis_player(visualised):
     cv.destroyAllWindows()
     cv.waitKey(10)
 
+def max_frame(array):
+    """Finds frame with largest mean value from 3d array. \n
+    Useful for automatically showing a frame of interest, as it should find the frame with the largest object.
+
+    Parameters
+    ----------
+    array : np.array
+        Array of image frames with 3 dimensions, where the third dimension is the frame number.
+
+    Returns
+    -------
+    integer
+        The index of the frame with the largest mean value.
+    """    
+    if np.ndim(array) == 3:
+        sum = np.sum(array, axis=(0,1))
+        index = int(np.where(sum==np.max(sum))[0])
+    else:
+        print('Array must have exactly 3 dimensions, with frame number as the third.')
+
+    return index
+
+def min_frame(array):
+    """Finds frame with smallest mean value from 3d array. \n
+    Useful for automatically showing a frame of interest, as it should find the frame with the largest object.
+
+    Parameters
+    ----------
+    array : np.array
+        Array of image frames with 3 dimensions, where the third dimension is the frame number.
+
+    Returns
+    -------
+    integer
+        The index of the frame with the smallest mean value.
+    """    
+    if np.ndim(array) == 3:
+        sum = np.sum(array, axis=(0,1))
+        index = int(np.where(sum==np.min(sum))[0])
+    else:
+        print('Array must have exactly 3 dimensions, with frame number as the third.')
+
+    return index
 
 # %% possible use for live images
 
