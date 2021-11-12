@@ -301,7 +301,12 @@ def difference(video, background):
 
     return diff
 
-    
+def threshold(array, threshold_value):
+    normalised = array/np.max(array)
+    thresholded = np.double(normalised>0.7)    
+
+    return thresholded
+
 # tracking
 
 def centre_points(array):
@@ -335,4 +340,78 @@ def centre_points(array):
 
     return np.array([x_av, y_av])
 
-# %%
+# visualising 
+
+def visualise(video, centre_xy):
+    tic = timer()
+    # add color channels to plot coloured shapes on top
+    color4 = np.repeat(np.expand_dims(video,2), 3, 2)
+
+    nframes = np.shape(video)[2]
+    visualised = np.repeat({},nframes,0)
+
+    for i in range(0, nframes):
+        im = video[:,:,i]
+        color = color4[:,:,:,i]
+        
+        if not np.isnan(centre_xy[0,i]):
+            centre =  (int(centre_xy[0,i]),int(centre_xy[1,i]))
+            image = cv.circle(color, centre, 5, (0,0,255), 2)
+            visualised[i] = image
+        else:
+            visualised[i] = im
+
+        print(" ", end=f"\r frame: {i+1} ", flush=True)
+
+    toc = timer()
+    print(f'\n visualisation complete in {toc-tic: 0.1f}s')
+
+    return visualised
+
+def vis_player(visualised):
+    tic = timer()
+    nframes = np.shape(visualised)[0]
+    for i in range(0, nframes):
+        cv.imshow('', visualised[i])
+        cv.waitKey(10)
+    toc = timer()
+    print(f'\n visualisation completed in {toc-tic: 0.1f}s')
+
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    cv.waitKey(10)
+
+
+# %% possible use for live images
+
+def visualise_live(video, centre_xy):
+    # add color channels to plot coloured shapes on top
+    color4 = np.repeat(np.expand_dims(video,2), 3, 2)
+
+    nframes = np.shape(video)[2]
+
+    visualised = np.repeat({},nframes,0)
+
+    tic = timer()
+    for i in range(0, nframes):
+        im = video[:,:,i]
+        color = color4[:,:,:,i]
+        
+        if not np.isnan(centre_xy[0,i]):
+            centre =  (int(centre_xy[0,i]),int(centre_xy[1,i]))
+            image = cv.circle(color, centre, 5, (0,0,255), 2)
+            visualised[i] = image
+            cv.imshow('', image)
+        else:
+            cv.imshow('', im)
+            visualised[i] = im
+        cv.waitKey(10)
+
+        print(" ", end=f"\r frame: {i+1} ", flush=True)
+    toc = timer()
+    print(f'\n video read complete in {toc-tic: 0.1f}s')
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    cv.waitKey(10)
+
+    return visualised
