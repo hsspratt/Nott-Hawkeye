@@ -25,56 +25,23 @@ plt.axis('off')
 plt.title(f'Video frame: {index}')
 plt.show()
 
-# difference image
-
-
-# %%
-def gauss_blur(image, radius):
-    """Blurs an image or video using a gaussian blur filter with specified radius.
-
-    Parameters
-    ----------
-    image : np.array
-        NumPy array of an image (2d) or video (3d). For a video, the frame number must be in axis 2.
-    radius : float
-        Specify the radius of the blur, the greater the radius, the greater the blur.
-
-    Returns
-    -------
-    np.array
-        Returns a NumPy array of the blurred image.
-    """    
-    if np.ndim(image) == 2:
-        im = Image.fromarray(np.uint8(image*255))
-        blur = np.array(im.filter(ImageFilter.GaussianBlur(radius=radius)))
-        return blur
-    elif np.ndim(image) == 3:
-        nframes =  np.shape(image)[2]
-        blur3 = np.zeros(np.shape(image))
-        for i in range(0, nframes):
-            im = Image.fromarray(np.uint8(image[:,:,i]*255))
-            blur = np.array(im.filter(ImageFilter.GaussianBlur(radius=radius)))
-            blur3[:,:,i] = blur
-        return blur3
-    else:
-        print('check that the array has 2 or 3 dimensions')
-
-
-imp.reload(functions)
-
-video_gauss = gauss_blur(video[:,:,:], 4)
-
-radius = 4
-im = Image.fromarray(np.uint8(video[:,:,100]*255))
-blur = np.array(im.filter(ImageFilter.GaussianBlur(radius=radius)))
+# %% gaussian blur
+video_gauss = functions.gauss_blur(video[:,:,:], 4.2)
 
 # sum_arr = np.sum(video_gauss, 2)
 plt.imshow(video_gauss[:,:,1], cmap='gray')
 
-# %%
+# %% subtraction method
+def ref_image(video):
+    mean = np.mean(video, 2)
+    background = np.expand_dims(mean, 2)
+    return background
 
+# background = video[:,:,0:1] # choose a reference image
+background = ref_image(video) # meaning to create background
 
-background = video[:,:,0:1] # choose a reference image
+plt.imshow(background, cmap='gray')
+
 diff = functions.difference(video, background)
 
 index = functions.max_frame(diff)

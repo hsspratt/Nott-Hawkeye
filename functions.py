@@ -13,9 +13,7 @@ import os.path
 import mpmath as mp
 import skimage.morphology as morph
 
-
 # video and image handling
-
 def video_play(video):
 
     print('Playing video in separate window')
@@ -109,7 +107,6 @@ def video_read(filename_full):
 
         return video
 
-
 # compression imports and exports
 def import_bz2(filename):    
     """Imports data from a bz2 compressed files in ~/Store folder. 
@@ -127,12 +124,12 @@ def import_bz2(filename):
     """    
     path = sys.path[0] + '/Store/' + filename + '.pbz2'
     if os.path.isfile(path):
-        print(f'Importing {path}...')
+        print(f'Importing {path}')
         tic2 = timer()
         with bz2.BZ2File(path, 'rb') as f:
             file = pickle.load(f)
         toc2 = timer()
-        print(f'\n import complete in {toc2-tic2: 0.1f}s')
+        print(f'Import complete in {toc2-tic2:0.1f}s \n')
     else:
         print('This file does not exist, check that filename has no extension or try a different filename.')
 
@@ -154,12 +151,12 @@ def import_lzma(filename):
     """    
     path = sys.path[0] + '/Store/' + filename + '.xz'
     if os.path.isfile(path):
-        print(f'Importing {path}...')
+        print(f'Importing {path}')
         tic2 = timer()
         with lzma.open(path, 'rb') as f:
             file = pickle.load(f)
         toc2 = timer()
-        print(f'\n import complete in {toc2-tic2: 0.1f}s')
+        print(f'Import complete in {toc2-tic2:0.1f}s \n')
     else:
         print('This file does not exist, check that filename has no extension or try a different filename.')
 
@@ -211,7 +208,6 @@ def export_lzma(filename, data):
         print(f'\n export complete in {toc2-tic2: 0.1f}s')
 
 # calibration functions
-
 def calib_honing(img, x_calib, y_calib):
     img_size = np.shape(img)
 
@@ -288,10 +284,8 @@ def calib(image, z_dist, x_calib, y_calib):
 
     return angle_pixel_xy
 
-
 # image manipulation
-
-def gauss_blur(image, radius):
+def gauss_blur1(image, radius):
     """Blurs an image using a gaussian blur filter with specified radius.
 
     Parameters
@@ -312,7 +306,74 @@ def gauss_blur(image, radius):
 
     return blur
 
+def gauss_blur(array, radius=4):
+    """Blurs an image or video using a gaussian blur filter with specified radius.
 
+    Parameters
+    ----------
+    array : np.array
+        NumPy array of an image (2d) or video (3d). For a video, the frame number must be in axis 2.
+    radius : float (optional, default: 4)
+        Specify the radius of the blur, the greater the radius, the greater the blur.
+
+    Returns
+    -------
+    np.array
+        Returns a NumPy array of the blurred image.
+    """    
+    if np.ndim(array) == 2:
+        im = Image.fromarray(np.uint8(array*255))
+        blur = np.array(im.filter(ImageFilter.GaussianBlur(radius=radius)))
+        return blur
+    elif np.ndim(array) == 3:
+        nframes =  np.shape(array)[2]
+        blur3 = np.zeros(np.shape(array))
+        for i in range(0, nframes):
+            im = Image.fromarray(np.uint8(array[:,:,i]*255))
+            blur = np.array(im.filter(ImageFilter.GaussianBlur(radius=radius)))
+            blur3[:,:,i] = blur
+        return blur3
+    else:
+        print('check that the array has 2 or 3 dimensions')
+
+def ref_image(video):
+    mean = np.mean(video, 2)
+    background = np.expand_dims(mean, 2)
+    return background
+
+def difference(video, background=np.nan):
+    """Calculates the difference between all frames of a video and a reference image(background).
+
+    Parameters
+    ----------
+    video : 3d array
+        A 3 dimensional array with frame number along the second axis.
+    background : 2d array (optional, defaults to initial video frame)
+        An array with matching size to a frame. Could be a clear frame from the video.
+
+    Returns
+    -------
+    np.array 
+        An array of the difference to the background for each frame, with the same shape as video.
+    """    
+    if np.ndim(video) == 3: 
+        if np.isnan(background) == True:
+            background = video[:,:,0]
+
+        nframes = np.shape(video)[2]
+        # create background array for all frames
+        video_0 = np.repeat(background, nframes, 2)
+        # create difference image for all frames
+        diff = np.array(np.abs(video-video_0))
+        return diff
+    else:
+        print('Error: check video dimensions')
+
+def threshold(array, threshold_value):
+    normalised = array/np.max(array)
+    thresholded = np.double(normalised>0.7)    
+
+    return thresholded
 
 def closing_disk(array, radius):
     str_el = morph.disk(radius)
@@ -336,26 +397,7 @@ def closing_disk(array, radius):
 
     return closed
 
-def difference(video, background):
-    
-    nframes = np.shape(video)[2]
-
-    # create background array for all frames
-    video_0 = np.repeat(background, nframes, 2)
-
-    # create difference image for all frames
-    diff = np.abs(video-video_0)
-
-    return diff
-
-def threshold(array, threshold_value):
-    normalised = array/np.max(array)
-    thresholded = np.double(normalised>0.7)    
-
-    return thresholded
-
 # tracking
-
 def centre_points(array):
     tic2 = timer()
 
@@ -388,7 +430,6 @@ def centre_points(array):
     return np.array([x_av, y_av])
 
 # visualising 
-
 def visualise(video, centre_xy):
     tic = timer()
     # add color channels to plot coloured shapes on top

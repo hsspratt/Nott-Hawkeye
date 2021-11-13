@@ -51,14 +51,4 @@ cv.waitKey(1)
 print('window closed')
 
 
-# %% gaussian blur
-
-diff = np.abs(video[:,:,250]-video[:,:,1])
-im = Image.fromarray(np.uint8(diff*255))
-blur = im.filter(ImageFilter.GaussianBlur(radius=4))
-
-
-plt.imshow(blur, cmap='gray')
-
-
 # %%
