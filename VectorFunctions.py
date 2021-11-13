@@ -8,8 +8,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 import mpmath as mp
+import functions as f
 
 # %% All Functions and Definitions relating to working with vectors
+
+def division(n1, n2):
+    try:
+        return n1/n2
+    except ZeroDivisionError:
+        return 0
 
 def normalised(v):
     """Normalises vector - ensure vector direction is of unit length
@@ -118,8 +125,8 @@ def LocShortestDistance(r1, r2, v1, v2):
     n1 = np.cross(v1, n)
     n2 = np.cross(v2, n)
 
-    c1 = r1 + v1*(np.dot((r2-r1),n2)/(np.dot(v1,n2)))
-    c2 = r2 + v2*(np.dot((r1-r2),n1)/(np.dot(v2,n1)))
+    c1 = r1 + v1*(division(np.dot((r2-r1),n2),(np.dot(v1,n2))))
+    c2 = r2 + v2*(division(np.dot((r1-r2),n1),(np.dot(v2,n1))))
 
     dist = np.linalg.norm(c1-c2,axis=0)
 
@@ -145,7 +152,10 @@ def Polar2Vector(r0, angle, axis, camera):
         Numpy array of a origin point (can also be a point which lies on the line)
     vector : np.array (N,1)
         vector that indicates the direction of the line
-    """    
+    """   
+    if np.any(angle) == 0:
+        angle = 0.001
+
     if camera == "1":
         if axis == "xz":
             vector = np.array([[1, 0, mp.cot(angle)]])
@@ -190,32 +200,86 @@ def sph2cart(r, theta, phi):
 
     return [x,y,z]
 
-def Camera2_Camera1_axis(phi,z1,x1):
-    """Converts the co-ordinates from that of camera 2 to camera 1 - therefore one co-ordinate system
+def Find3DPosition(cameras_r0, cameras_angles, args):
+    """Takes the inputs from the cameras in terms of positions and angles
+       generate a 3D position of the ball
 
     Parameters
     ----------
-    phi : radian
-        Angle from a line normal to the lens to the angle made with the pixel
-    z1 : float
-        z position of camera 2
-    x1 : [type]
-        x position of camera 2
+    cameras_r0 : turple of np.arrays
+        Two numpy arrays for the two initial positions of the cameras
+    cameras_angles : turple of np.arrays
+        Four angles theta and phi from camera 1 and the same from camera 2
+    args : string
+        if "lines" chosen it returns the whole line instead of the individual point
 
     Returns
     -------
-    r0 : np.array
-        [description]
+    cart_position
+        Returns the 3D position of the ball in cartesian co-ordinates
     """    
-    r0 = np.array([z1 - np.tan(phi)*x1, 0])
-    vector = np.array([[np.tan(phi), 1]])
-    return r0, vector
+    camera1_r0 = cameras_r0[0]
+    camera2_r0 = cameras_r0[1]
 
-def Camera1toCamera2_1(phi,z1,x1):
-    r0 = np.array([x1, z1])
-    vector = np.array([[np.tan(phi), 1]])
-    return r0, vector
+    camera1_theta = cameras_angles[0]
+    camera1_phi = cameras_angles[1]
+    camera2_theta = cameras_angles[2]
+    camera2_phi = cameras_angles[3]
 
-Polar2Vector(np.array([5,2,1]), np.radians(10), "xz", "1")
+    _,camera1_vector_xz = Polar2Vector(camera1_r0, camera1_theta, axis="xz", camera="1")
+    _,camera1_vector_yz = Polar2Vector(camera1_r0, camera1_phi, axis="yz", camera="1")
+    _,camera2_vector_xz = Polar2Vector(camera2_r0, camera2_theta, axis="xz", camera="2")
+    _,camera2_vector_yz = Polar2Vector(camera2_r0, camera2_phi, axis="yz", camera="2")
+
+    camera1_cart = sph2cart(1, camera1_theta, camera1_phi)
+    camera2_cart = sph2cart(1, camera2_theta, camera2_phi)
+
+    camera1_vector = normalised(camera1_cart - camera1_r0)
+    camera2_vector = normalised(camera2_cart - camera2_r0)
+
+    tlim = np.max(camera1_r0*2)
+    t = np.linspace(0,tlim,5000)
+    
+    camera1_line = t*np.array([camera1_vector]).T
+    camera2_line = t*np.array([camera2_vector]).T
+
+    if args == "Line":
+        return [camera1_line, camera2_line], [camera1_vector, camera2_vector]
+
+    rel_position_shortest = LocShortestDistance(camera1_r0, camera2_r0, camera1_vector, camera2_vector)
+    rel_position_shortest = [rel_position_shortest[0].astype(np.float64), rel_position_shortest[1].astype(np.float64)]
+    #print(rel_position_shortest)
+    # Z = np.matrix(rel_position_shortest.tolist(), dtype=float)
+    cart_position = np.average(rel_position_shortest[0:2])
+
+    return cart_position
+
+# def Camera2_Camera1_axis(phi,z1,x1):
+#     """Converts the co-ordinates from that of camera 2 to camera 1 - therefore one co-ordinate system
+
+#     Parameters
+#     ----------
+#     phi : radian
+#         Angle from a line normal to the lens to the angle made with the pixel
+#     z1 : float
+#         z position of camera 2
+#     x1 : [type]
+#         x position of camera 2
+
+#     Returns
+#     -------
+#     r0 : np.array
+#         [description]
+#     """    
+#     r0 = np.array([z1 - np.tan(phi)*x1, 0])
+#     vector = np.array([[np.tan(phi), 1]])
+#     return r0, vector
+
+# def Camera1toCamera2_1(phi,z1,x1):
+#     r0 = np.array([x1, z1])
+#     vector = np.array([[np.tan(phi), 1]])
+#     return r0, vector
+
+
 
 # %%

@@ -110,3 +110,11 @@ plt.imshow(keep); plt.axis('off')
 
 # %%
 
+import functions as f
+
+video = f.video_read('IMG_3005.mp4')
+
+# %%
+
+f.export_lzma('cameraA_test1', video)
+# %%
