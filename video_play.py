@@ -8,8 +8,9 @@ import cv2 as cv
 import pickle
 import lzma
 from PIL import Image, ImageFilter
-import compression 
+# import compression 
 import sys
+# import blosc
 
 # choose file to read
 f_name = 'video1.xz'
