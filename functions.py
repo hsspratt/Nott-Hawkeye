@@ -240,20 +240,22 @@ def calib_count(img, xy_calib):
     x_calib, y_calib = xy_calib
 
     img_size = np.shape(img)
+    x_centre = int(img_size[1]/2)
+    y_centre = int(img_size[0]/2)
     gray = skm.rgb2gray(img)
     thresh = gray>0.58
 
-    x_points = (240, x_calib, 240)
-    y_points = (180, 180, y_calib)
+    x_points = (x_centre, x_calib, x_centre)
+    y_points = (y_centre, y_centre, y_calib)
 
     opacity = 1
 
     fig = plt.figure(figsize=(10,10))
     # ax = plt.imshow(thresh, cmap='gray', alpha=0.5); 
-    ax = plt.imshow(gray, cmap='gray'); 
+    plt.imshow(gray, cmap='gray'); 
     plt.scatter(x_points, y_points, s=200, alpha=opacity, marker='x', c='red')
     plt.title('Calibration image')
-    plt.axis([0, img_size[1]/2+40, img_size[0]/2+40, 0])
+    # plt.axis([0, img_size[1]/2+40, img_size[0]/2+40, 0])
     plt.show(block=True)
 
 def calib_calc(xy_calib, z_dist):
@@ -357,12 +359,14 @@ def difference(video, background=np.nan):
         An array of the difference to the background for each frame, with the same shape as video.
     """    
     if np.ndim(video) == 3: 
-        if np.isnan(background) == True:
+        
+        if [background.all] == [np.nan]:
             background = video[:,:,0]
-
+        
         nframes = np.shape(video)[2]
         # create background array for all frames
         video_0 = np.repeat(background, nframes, 2)
+
         # create difference image for all frames
         diff = np.array(np.abs(video-video_0))
         return diff
@@ -371,7 +375,7 @@ def difference(video, background=np.nan):
 
 def threshold(array, threshold_value):
     normalised = array/np.max(array)
-    thresholded = np.double(normalised>0.7)    
+    thresholded = np.double(normalised>threshold_value)    
 
     return thresholded
 
@@ -433,7 +437,9 @@ def centre_points(array):
 def visualise(video, centre_xy):
     tic = timer()
     # add color channels to plot coloured shapes on top
-    color4 = np.repeat(np.expand_dims(video,2), 3, 2)
+    normalise = video/np.max(video)
+    color4 = np.repeat(np.expand_dims(normalise,2), 3, 2)
+    # color4 = np.zeros(np.hstack((np.shape(video),3)))
 
     nframes = np.shape(video)[2]
     visualised = np.repeat({},nframes,0)
@@ -442,12 +448,12 @@ def visualise(video, centre_xy):
         im = video[:,:,i]
         color = color4[:,:,:,i]
         
-        if not np.isnan(centre_xy[0,i]):
+        if not np.isnan(centre_xy[0,i]): # check the object is in frame
             centre =  (int(centre_xy[0,i]),int(centre_xy[1,i]))
             image = cv.circle(color, centre, 5, (0,0,255), 2)
             visualised[i] = image
         else:
-            visualised[i] = im
+            visualised[i] = color
 
         print(" ", end=f"\r frame: {i+1} ", flush=True)
 
@@ -456,12 +462,12 @@ def visualise(video, centre_xy):
 
     return visualised
 
-def vis_player(visualised):
+def vis_player(visualised, wait=10):
     tic = timer()
     nframes = np.shape(visualised)[0]
     for i in range(0, nframes):
         cv.imshow('', visualised[i])
-        cv.waitKey(10)
+        cv.waitKey(wait)
     toc = timer()
     print(f'\n visualisation completed in {toc-tic: 0.1f}s')
 
@@ -512,6 +518,25 @@ def min_frame(array):
         print('Array must have exactly 3 dimensions, with frame number as the third.')
 
     return index
+
+def compare_frames(plot1, plot2, frame, s_title=np.nan, axis='off', figsize=(10,4)):
+
+    plot1 = plot1[:,:,frame]
+    plot2 = plot2[:,:,frame]
+    
+    fig, ax = plt.subplots(1,2, figsize=figsize)
+    
+    if not [s_title] == [np.nan]:
+        fig.suptitle(s_title, fontsize=20)
+
+    ax[0].imshow(plot1, cmap='gray')
+    ax[0].axis(axis)
+    ax[0].set_title(f'Camera A, frame: {frame}')
+
+    ax[1].imshow(plot2, cmap='gray')
+    ax[1].axis(axis)
+    ax[1].set_title(f'Camera B, frame: {frame}')
+    plt.show()
 
 # %% possible use for live images
 
