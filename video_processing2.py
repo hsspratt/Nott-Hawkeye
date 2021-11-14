@@ -84,9 +84,14 @@ plt.ylim([A_xy[1,i]-40, A_xy[1,i]+40])
 # %%
 imp.reload(f)
 A_img = f.open_img('IMG_0795.jpg')
+# A_img=f.open_img('IMG_3014.jpg')
 
-f.calib_honing(A_img, 100, 100)
+# f.calib_honing(A_img, 100, 100)
 f.calib_count(A_img, (100,100))
+
+
+# %%
+
 
 # %%
 

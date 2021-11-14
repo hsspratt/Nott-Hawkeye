@@ -210,16 +210,18 @@ def export_lzma(filename, data):
 # calibration functions
 def calib_honing(img, x_calib, y_calib):
     img_size = np.shape(img)
+    x_centre = int(img_size[1]/2)
+    y_centre = int(img_size[0]/2)
 
-    x_points = (240, x_calib, 240)
-    y_points = (180, 180, y_calib)
+    x_points = (x_centre, x_calib, x_centre)
+    y_points = (y_centre, y_centre, y_calib)
 
     opacity = 0.8
 
     subplot, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=(10,10))
     ax1.imshow(img);
     ax1.scatter(x_points, y_points, s=500, alpha=opacity, marker='x')
-    ax1.axis([img_size[1]/2-40, img_size[1]/2+40, img_size[0]/2+40,img_size[0]/2-40])
+    ax1.axis([img_size[0]/2-40, img_size[0]/2+40, img_size[1]/2+40,img_size[1]/2-40])
     ax1.set_title('Centre point')
     ax2.imshow(img);
     ax2.scatter(x_points, y_points, s=500, alpha=opacity, marker='x')
@@ -254,6 +256,7 @@ def calib_count(img, xy_calib):
     # ax = plt.imshow(thresh, cmap='gray', alpha=0.5); 
     plt.imshow(gray, cmap='gray'); 
     plt.scatter(x_points, y_points, s=200, alpha=opacity, marker='x', c='red')
+    plt.plot([x_centre, x_centre], [0, img_size[0]-1])
     plt.title('Calibration image')
     # plt.axis([0, img_size[1]/2+40, img_size[0]/2+40, 0])
     plt.show(block=True)
