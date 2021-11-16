@@ -7,7 +7,6 @@ from sympy import Integral, Matrix, pi, pprint
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
-import mpmath as mp
 import functions as f
 
 # %% All Functions and Definitions relating to working with vectors
@@ -56,10 +55,10 @@ def EqOfLine(r0,r1):
     r0 : np.array (N,1)
         Rereturns r0, so that in can be easily found
     """    
-    vector = normalised(np.array([r1 - r0]))
-    r0 = np.array([r0])
+    vector = normalised(r1 - r0)
+    r0 = r0
 
-    return [vector, r0]
+    return vector, r0
 
 def FindShortestDistance(r1, r2, v1, v2):
     """Finds the shortest distance between two vectors
@@ -110,9 +109,9 @@ def LocShortestDistance(r1, r2, v1, v2):
     Returns
     -------
     c1 : np.array (N,1)
-        Location on line 1 where it is at a shortest distnce to line 2
+        Location on line 1 where it is at a shortest distance to line 2
     c2 : np.array (N,1)
-        Location on line 2 where it is at a shortest distnce to line 1
+        Location on line 2 where it is at a shortest distance to line 1
     dist : float
         simply the shortest distance between the two lines 
 
@@ -158,25 +157,25 @@ def Polar2Vector(r0, angle, axis, camera):
 
     if camera == "1":
         if axis == "xz":
-            vector = np.array([[1, 0, mp.cot(angle)]])
+            vector = np.array([[1, 0, np.tan(angle)]])
             return r0, vector
         if axis == "yz":
-            vector = np.array([[0, 1, mp.cot(angle)]])
+            vector = np.array([[0, 1, np.tan(angle)]])
             return r0, vector
         else:
             print("Axis not specified correctly")
     if camera=="2":
         if axis == "xz":
-            vector = np.array([[1, 0, mp.tan(angle)]])
+            vector = np.array([[1, 0, np.tan(angle)]])
             return r0, vector
         if axis == "yz":
-            vector = np.array([[0, 1, mp.tan(angle)]])
+            vector = np.array([[0, 1, np.tan(angle)]])
             return r0, vector
         else:
             print("Axis not specified correctly")
 
 
-def sph2cart(r, theta, phi):
+def sph2cart(r, theta, phi, cameras_r0):
     """Converts spherical co-ordinates (r,θ,φ) into cartesian (x,y,z)
 
     Parameters
@@ -193,14 +192,77 @@ def sph2cart(r, theta, phi):
     [x,y,z] : np.array of floats
         Denotes the x, y and z co-ordinate
     """    
+    x0, y0, z0 = cameras_r0
 
-    x = r * mp.sin(theta) * mp.cos(phi)
-    y = r * mp.sin(theta) * mp.sin(phi)
-    z = r * mp.cos(theta)
+    x = r * np.sin(theta) * np.cos(phi) + x0
+    y = r * np.sin(theta) * np.sin(phi) + y0
+    z = r * np.cos(theta) + z0
 
-    return [x,y,z]
+    return x,y,z
 
-def Find3DPosition(cameras_r0, cameras_angles, args):
+def new_sph2cart(r, theta, phi, cameras_r0):
+    """Converts spherical co-ordinates (r,θ,φ) into cartesian (x,y,z)
+
+    Parameters
+    ----------
+    r : float
+        radial distance
+    theta : radians
+        Angle from a line normal to the lens to the angle made with the pixel (xz plane)
+    phi : radians
+        Angle from a line normal to the lens to the angle made with the pixel (yz plane)
+
+    Returns
+    -------
+    [x,y,z] : np.array of floats
+        Denotes the x, y and z co-ordinate
+    """    
+    x0, y0, z0 = np.array([0,0,0]) # cameras_r0
+
+    x = r * np.cos(theta) * np.sin(phi) + x0
+    z = r * np.sin(theta) * np.sin(phi) + z0
+    y = r * np.cos(theta) + y0
+
+    return x,y,z
+
+def Find3DPosition(cameras_r0, cameras_angles, delta, args):
+
+    camera1_r0 = cameras_r0[0]
+    camera2_r0 = cameras_r0[1]
+
+    dt_A, dt_B, dp_B = delta
+
+    camera1_theta = (np.pi/2 + dt_A) - cameras_angles[0]
+    camera1_phi = (np.pi/2) - cameras_angles[1]
+    camera2_theta = (np.pi/2 + dt_B) - cameras_angles[2]
+    camera2_phi = cameras_angles[3] - dp_B
+
+    _,camera1_vector_xz = Polar2Vector(camera1_r0, camera1_theta, axis="xz", camera="1")
+    _,camera1_vector_yz = Polar2Vector(camera1_r0, camera1_phi, axis="yz", camera="1")
+    _,camera2_vector_xz = Polar2Vector(camera2_r0, camera2_theta, axis="xz", camera="2")
+    _,camera2_vector_yz = Polar2Vector(camera2_r0, camera2_phi, axis="yz", camera="2")
+
+    camera1_cart = np.array(new_sph2cart(1, camera1_theta, camera1_phi, camera1_r0))
+    camera2_cart = np.array(new_sph2cart(1, camera2_theta, camera2_phi, camera2_r0))
+
+    camera1_vector = normalised(camera1_cart - camera1_r0)
+    camera2_vector = normalised(camera2_cart - camera2_r0)
+
+    tlim = np.max(cameras_r0)*2
+    t = np.linspace(0,tlim,5000)
+    
+    camera1_line = t*np.array([camera1_vector]).T[0]
+    camera2_line = t*np.array([camera2_vector]).T[0]
+
+    if args == "Line":
+        return [camera1_line, camera2_line], [camera1_vector, camera2_vector]
+
+    c1, c2, dist = LocShortestDistance(camera1_r0, camera2_r0, camera1_vector, camera2_vector)
+    # rel_position_shortest = np.vstack((c1, c2))
+    cart_position = (c1 + c2) / 2.0
+    print(cart_position)
+    #print(rel_position_shortest)
+
     """Takes the inputs from the cameras in terms of positions and angles
        generate a 3D position of the ball
 
@@ -218,41 +280,8 @@ def Find3DPosition(cameras_r0, cameras_angles, args):
     cart_position
         Returns the 3D position of the ball in cartesian co-ordinates
     """    
-    camera1_r0 = cameras_r0[0]
-    camera2_r0 = cameras_r0[1]
 
-    camera1_theta = cameras_angles[0]
-    camera1_phi = cameras_angles[1]
-    camera2_theta = cameras_angles[2]
-    camera2_phi = cameras_angles[3]
-
-    _,camera1_vector_xz = Polar2Vector(camera1_r0, camera1_theta, axis="xz", camera="1")
-    _,camera1_vector_yz = Polar2Vector(camera1_r0, camera1_phi, axis="yz", camera="1")
-    _,camera2_vector_xz = Polar2Vector(camera2_r0, camera2_theta, axis="xz", camera="2")
-    _,camera2_vector_yz = Polar2Vector(camera2_r0, camera2_phi, axis="yz", camera="2")
-
-    camera1_cart = sph2cart(1, camera1_theta, camera1_phi)
-    camera2_cart = sph2cart(1, camera2_theta, camera2_phi)
-
-    camera1_vector = normalised(camera1_cart - camera1_r0)
-    camera2_vector = normalised(camera2_cart - camera2_r0)
-
-    tlim = np.max(camera1_r0*2)
-    t = np.linspace(0,tlim,5000)
-    
-    camera1_line = t*np.array([camera1_vector]).T
-    camera2_line = t*np.array([camera2_vector]).T
-
-    if args == "Line":
-        return [camera1_line, camera2_line], [camera1_vector, camera2_vector]
-
-    rel_position_shortest = LocShortestDistance(camera1_r0, camera2_r0, camera1_vector, camera2_vector)
-    rel_position_shortest = [rel_position_shortest[0].astype(np.float64), rel_position_shortest[1].astype(np.float64)]
-    #print(rel_position_shortest)
-    # Z = np.matrix(rel_position_shortest.tolist(), dtype=float)
-    cart_position = np.average(rel_position_shortest[0:2])
-
-    return cart_position
+    return camera1_vector, camera2_vector, c1, c2, cart_position
 
 # def Camera2_Camera1_axis(phi,z1,x1):
 #     """Converts the co-ordinates from that of camera 2 to camera 1 - therefore one co-ordinate system
@@ -283,3 +312,21 @@ def Find3DPosition(cameras_r0, cameras_angles, args):
 
 
 # %%
+
+# %%
+
+def p4(p1, p2, p3):
+     x1, y1 = p1
+     x2, y2 = p2
+     x3, y3 = p3
+     dx, dy = x2-x1, y2-y1
+     det = dx*dx + dy*dy
+     a = (dy*(y3-y1)+dx*(x3-x1))/det
+     x= x1+a*dx, y1+a*dy
+     # print(x)
+     if x[0]<x1 or x[1]<y1:
+         return p1
+     elif x[0]>x2 or x[1]>y2:
+         return p2
+     else:
+         return x
