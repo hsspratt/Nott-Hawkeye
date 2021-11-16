@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
 # Create a sphere
-r = 1
+r = np.linspace(0,1,100)
 pi = np.pi
 cos = np.cos
 sin = np.sin

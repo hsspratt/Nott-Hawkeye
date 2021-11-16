@@ -208,7 +208,7 @@ def export_lzma(filename, data):
         print(f'\n export complete in {toc2-tic2: 0.1f}s')
 
 # calibration functions
-def calib_honing(img, x_calib, y_calib):
+def calib_honing(img, x_calib, y_calib, zoom=15):
     img_size = np.shape(img)
     x_centre = int(img_size[1]/2)
     y_centre = int(img_size[0]/2)
@@ -217,19 +217,20 @@ def calib_honing(img, x_calib, y_calib):
     y_points = (y_centre, y_centre, y_calib)
 
     opacity = 0.8
+    width = int((1/zoom)*img_size[1])
 
     subplot, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=(10,10))
     ax1.imshow(img);
     ax1.scatter(x_points, y_points, s=500, alpha=opacity, marker='x')
-    ax1.axis([img_size[0]/2-40, img_size[0]/2+40, img_size[1]/2+40,img_size[1]/2-40])
+    ax1.axis([x_points[0]-width, x_points[0]+width, y_points[0]+width,y_points[0]-width])
     ax1.set_title('Centre point')
     ax2.imshow(img);
     ax2.scatter(x_points, y_points, s=500, alpha=opacity, marker='x')
-    ax2.axis([0,80, 220,140])
+    ax2.axis([0, (width*2), y_points[1]+width, y_points[1]-width])
     ax2.set_title('Centre left')
     ax3.imshow(img);
     ax3.scatter(x_points, y_points, s=500, alpha=opacity, marker='x')
-    ax3.axis([200,280, 80,0])
+    ax3.axis([x_points[0]-width, x_points[0]+width, (width*2), 0])
     ax3.set_title('Top centre')
     subplot.tight_layout()
     plt.show(block=True)
@@ -258,7 +259,7 @@ def calib_count(img, xy_calib):
     plt.scatter(x_points, y_points, s=200, alpha=opacity, marker='x', c='red')
     plt.plot([x_centre, x_centre], [0, img_size[0]-1])
     plt.title('Calibration image')
-    # plt.axis([0, img_size[1]/2+40, img_size[0]/2+40, 0])
+    # plt.axis([0, img_size[1]/2+width, img_size[0]/2+width, 0])
     plt.show(block=True)
 
 def calib_calc(xy_calib, z_dist):
@@ -266,7 +267,7 @@ def calib_calc(xy_calib, z_dist):
     # x_dist, y_dist, z_dist = dist
     x_dist, y_dist = (17, 13)
 
-    x_points = (240, x_calib, 240)
+    x_points = (280, x_calib, 280)
     y_points = (180, 180, y_calib)
 
     theta_x = (mp.tan(x_dist/z_dist))
@@ -283,8 +284,8 @@ def calib_calc(xy_calib, z_dist):
 
     return angle_pixel_x, angle_pixel_y
 
-def calib(image, z_dist, x_calib, y_calib):
-    xy_calib = calib_honing(image, x_calib, y_calib)
+def calib(image, z_dist, x_calib, y_calib, zoom=15):
+    xy_calib = calib_honing(image, x_calib, y_calib, zoom)
     angle_pixel_xy = calib_calc(xy_calib, z_dist)
 
     return angle_pixel_xy

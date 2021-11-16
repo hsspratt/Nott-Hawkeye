@@ -92,9 +92,6 @@ f.calib_count(A_img, (100,100))
 
 # %%
 
-
-# %%
-
 imp.reload(f)
 
 image_save = f.visualise(B_video_in, B_xy)
@@ -103,21 +100,47 @@ f.vis_player(image_save, 1000)
 
 # %% Angles
 
-calib = f.import_bz2('angles')
+calib = f.import_bz2('angles2')
 
-Aang_x = (A_xy[0,:]-240)*calib[0,0]
-Aang_y = (A_xy[1,:]-180)*calib[0,1]
+A_fsize = np.shape(A_closed)[0:2] # rows[0] is y, columns[1] is x
+B_fsize = np.shape(B_closed)[0:2]
 
-Bang_x = (B_xy[0,:]-240)*calib[0,0]
-Bang_y = (B_xy[1,:]-180)*calib[0,0]
+Aang_x = (A_xy[0,:]-A_fsize[1]/2)*calib[0,0]
+Aang_y = (A_xy[1,:]-A_fsize[0]/2)*calib[0,1]
+
+Bang_x = (B_xy[0,:]-B_fsize[1]/2)*calib[0,0]
+Bang_y = (B_xy[1,:]-B_fsize[0]/2)*calib[0,0]
 
 angles = np.vstack((Aang_x, Aang_y, Bang_x, Bang_y))
 
-plt.plot(np.repeat(np.expand_dims(range(0,9), 1), 4, 1), angles.T)
+plt.plot(np.repeat(np.expand_dims(range(0,9), 1), angles.shape[0], 1), angles.T)
 
 
 # %%
 
-f.export_bz2('test_photos_angles', angles)
+f.export_bz2('test_photos_angles2', angles)
 
+# %%
+
+add1 = np.sum(B_closed,2)
+
+plt.figure()
+plt.imshow(add1)
+
+# %%
+AAtheta = Bang_x[1]
+r = np.linspace(0,100, 100)
+x = r*np.cos(AAtheta)
+y = r*np.sin(AAtheta)
+
+# plt.figure()
+# plt.plot(x,y)
+
+AAdegrees = np.degrees(Bang_x)
+print(AAdegrees)
+
+AAcalib_deg = np.degrees(calib)
+print(AAcalib_deg)
+
+AAx1 = A_xy[1]
 # %%
