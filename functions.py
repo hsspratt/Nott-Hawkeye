@@ -451,15 +451,17 @@ def visualise(video, centre_xy):
     for i in range(0, nframes):
         im = video[:,:,i]
         color = color4[:,:,:,i]
+        print(np.shape(color4))
         
         if not np.isnan(centre_xy[0,i]): # check the object is in frame
             centre =  (int(centre_xy[0,i]),int(centre_xy[1,i]))
             image = cv.circle(color, centre, 5, (0,0,255), 2)
             visualised[i] = image
         else:
-            visualised[i] = color
-
+            visualised[i] = im
+        plt.imshow(visualised[i])
         print(" ", end=f"\r frame: {i+1} ", flush=True)
+        
 
     toc = timer()
     print(f'\n visualisation complete in {toc-tic: 0.1f}s')
